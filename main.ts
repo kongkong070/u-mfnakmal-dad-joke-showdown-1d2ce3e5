@@ -1,14 +1,24 @@
-// Dad Joke Showdown — writes one dad joke to /output/entry.txt.
-// Node 22, standard library only. The grader runs `node main.ts` with
-// MAKEFUN_OUTPUT_DIR set (or /output); it starts with an empty output dir,
-// so there is nothing to clear — never remove the output dir itself, it is
-// a bind mount in the grader and removing it throws EBUSY.
-import { mkdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+// One dad joke, written out to the entry file the grader reads.
+// The entry must be exactly one sentence, so the text is kept in a single
+// constant and written verbatim — no trailing newline, no extra wrapping.
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 
-const outputDir = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
-const line =
-  'I told my Wi-Fi router a joke, but it just kept buffering the punchline.';
+const JOKE =
+  "I told my Wi-Fi router a joke, but it just kept buffering the punchline.";
 
-mkdirSync(outputDir, { recursive: true });
-writeFileSync(join(outputDir, 'entry.txt'), line);
+function entryPath(): string {
+  const dir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+  }
+  return resolve(dir, "entry.txt");
+}
+
+function main(): void {
+  // The output directory is a bind mount in the grader, so it is only ever
+  // created here when missing — it is never removed or emptied.
+  writeFileSync(entryPath(), JOKE, { encoding: "utf8" });
+}
+
+main();
